@@ -1,0 +1,1 @@
+# altv-resource-typescript-template
