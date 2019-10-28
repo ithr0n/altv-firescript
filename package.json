@@ -1,5 +1,5 @@
 {
-  "name": "flatbedtruck",
+  "name": "altv-firescript",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,7 +9,7 @@
     "build:server": "rollup --config rollup.config.server.js",
     "build:client": "rollup --config rollup.config.client.js"
   },
-  "author": "",
+  "author": "ithr0n",
   "license": "ISC",
   "dependencies": {},
   "devDependencies": {
