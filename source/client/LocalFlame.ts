@@ -12,7 +12,8 @@ export default class LocalFire {
     constructor(
         private readonly fireId: string,
         private readonly flameId: string,
-        private readonly position: alt.Vector3
+        private readonly position: alt.Vector3,
+        private readonly isGasFire: boolean
     ) {
         this.start()
     }
@@ -23,23 +24,27 @@ export default class LocalFire {
         res = game.getGroundZFor3dCoord(this.position.x, this.position.y, this.position.z + 5, 0, false);
         if (!res[0]) {
             // no ground position found, happens probably when spawning fire inside of a building
-            return alt.emitServer('FireScript:Server:RemoveFlame', this.fireId, this.flameId)
+            alt.log('flame no ground position found')
+            return alt.emitServer('FireScript:Server:RespawnInvalidFlame', this.fireId, this.flameId)
         }
         this.position.z = res[1]
-
-        res = game.getSafeCoordForPed(this.position.x, this.position.y, this.position.z, false, new alt.Vector3(0, 0, 0), 16)
-        if (!res[0]) {
-            // no ground position found, happens probably when spawning fire inside of a building
-            return alt.emitServer('FireScript:Server:RemoveFlame', this.fireId, this.flameId)
-        }
-        this.position.x = res[1].x
-        this.position.y = res[1].y
-        this.position.z = res[1].z
-
+        /*
+                res = game.getSafeCoordForPed(this.position.x, this.position.y, this.position.z, false, new alt.Vector3(0, 0, 0), 16)
+                if (!res[0]) {
+                    // no ground position found, happens probably when spawning fire inside of a building
+                    return alt.emitServer('FireScript:Server:RemoveFlame', this.fireId, this.flameId)
+                }
+                this.position.x = res[1].x
+                this.position.y = res[1].y
+                this.position.z = res[1].z*/
 
         // probably additional check: isPositionOccupied
+        /*if (game.isPositionOccupied(this.position.x, this.position.y, this.position.z, 1.2, false, true, true, false, false, game.playerPedId(), false)) {
+            alt.log('flame position occupied')
+            return alt.emitServer('FireScript:Server:RespawnInvalidFlame', this.fireId, this.flameId)
+        }*/
 
-        this.scriptFireId = game.startScriptFire(this.position.x, this.position.y, this.position.z, 25, false)
+        this.scriptFireId = game.startScriptFire(this.position.x, this.position.y, this.position.z, 25, this.isGasFire)
 
         requestNamedPtfxAssetPromise("scr_trevor3").then(() => {
             const smokePos = this.position

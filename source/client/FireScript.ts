@@ -3,32 +3,10 @@ import game from 'natives'
 import LocalFire from './LocalFire'
 import LocalFlame from './LocalFlame'
 
-// old
-/*
-alt.on('FireScript:Client:StopFireAtPosition', (x: number, y: number, z: number) => {
-    stopFires(true, new alt.Vector3(x, y, z), 3)
-})
-
-alt.on('FireScript:Client:StartSmokesAtPlayer', (source: alt.Player, scale: number) => {
-    startSmoke(source, scale)
-})
-
-alt.on('FireScript:Client:StopSmoke', () => {
-    stopSmoke(true, alt.Player.local.pos)
-})
-
-alt.on('FireScript:Client:StopAllSmoke', () => {
-    stopSmoke(false, new alt.Vector3(0, 0, 0))
-})*/
-
-
-
-
-// new
 const fires: Map<string, LocalFire> = new Map<string, LocalFire>()
 
-alt.onServer('FireScript:Client:StartLocalFire', (fireId: string, position: alt.Vector3, maxSpreadDistance: number, explosion: boolean) => {
-    const fire = new LocalFire(fireId, position, maxSpreadDistance, explosion)
+alt.onServer('FireScript:Client:StartLocalFire', (fireId: string, position: alt.Vector3, maxSpreadDistance: number, evolveType: number) => {
+    const fire = new LocalFire(fireId, position, maxSpreadDistance, evolveType)
     fire.start()
 
     fires.set(fireId, fire)
@@ -43,10 +21,10 @@ alt.onServer('FireScript:Client:RemoveFire', (fireId: string) => {
 })
 
 
-alt.onServer('FireScript:Client:StartLocalFlame', (fireId: string, flameId: string, position: alt.Vector3) => {
+alt.onServer('FireScript:Client:StartLocalFlame', (fireId: string, flameId: string, position: alt.Vector3, isGasFire: boolean) => {
     const fire = fires.get(fireId)
     if (fire) {
-        fire.addFlame(new LocalFlame(fireId, flameId, position))
+        fire.addFlame(new LocalFlame(fireId, flameId, position, isGasFire))
     }
 })
 

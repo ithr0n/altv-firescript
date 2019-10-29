@@ -3,7 +3,8 @@ import alt from 'alt';
 export default class Flame {
     constructor(
         private readonly fireId: string,
-        private readonly position: alt.Vector3
+        private readonly position: alt.Vector3,
+        private readonly isGasFire: boolean
     ) {
         this.Id = Flame.generateId()
         this.start()
@@ -18,7 +19,7 @@ export default class Flame {
 
     public start() {
         this._active = true
-        alt.emitClient(null, 'FireScript:Client:StartLocalFlame', this.fireId, this.Id, this.position)
+        alt.emitClient(null, 'FireScript:Client:StartLocalFlame', this.fireId, this.Id, this.position, this.isGasFire)
     }
 
     public remove() {

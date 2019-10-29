@@ -1,5 +1,5 @@
 import alt, { Vector3 } from 'alt'
-import Fire from './Fire'
+import Fire, { FireEvolveFlags } from './Fire'
 import Smoke from './Smoke'
 
 // events
@@ -18,8 +18,8 @@ alt.on('playerConnect', (player: alt.Player) => {
 
 
 // fires
-alt.onClient('FireScript:Server:StartFireAtPlayer', (source: alt.Player, maxFlames: number, maxRange: number, explosion: boolean, createTimeout: number) => {
-    startFire(source, maxFlames, maxRange, explosion, createTimeout)
+alt.onClient('FireScript:Server:StartFireAtPlayer', (source: alt.Player, maxFlames: number, maxRange: number, evolveFlags: FireEvolveFlags, createTimeout: number) => {
+    startFire(source, maxFlames, maxRange, evolveFlags, createTimeout)
 })
 
 alt.onClient('FireScript:Server:StopFiresAtPlayer', (source: alt.Player) => {
@@ -28,6 +28,17 @@ alt.onClient('FireScript:Server:StopFiresAtPlayer', (source: alt.Player) => {
 
 alt.onClient('FireScript:Server:StopAllFires', () => {
     stopFires(false, new alt.Vector3(0, 0, 0))
+})
+
+alt.onClient('FireScript:Server:RespawnInvalidFlame', (source: alt.Player, fireId: string, flameId: string) => {
+    const fire = ActiveFires.get(fireId)
+
+    if (fire) {
+        fire.removeFlame(flameId)
+        fire.respawnInvalidFlame()
+    }
+
+    alt.emitClient(null, 'FireScript:Client:RemoveLocalFlame', flameId)
 })
 
 alt.onClient('FireScript:Server:RemoveFlame', (source: alt.Player, fireId: string, flameId: string) => {
@@ -62,13 +73,13 @@ setInterval(() => {
 }, 10)
 
 
-function startFire(source: alt.Player, maxFlames: number, maxRange: number, explosion: boolean, createTimeout: number) {
+function startFire(source: alt.Player, maxFlames: number, maxRange: number, evolveFlags: FireEvolveFlags, createTimeout: number) {
     const firePos = source.pos
     firePos.z -= 0.87
     if (maxFlames > 100) maxFlames = 100
     if (maxRange > 30) maxRange = 30
     const newId = generateId()
-    ActiveFires.set(newId, new Fire(newId, firePos, maxFlames, maxRange, explosion))
+    ActiveFires.set(newId, new Fire(newId, firePos, maxFlames, maxRange, evolveFlags))
 
     setTimeout(() => {
         const fire = ActiveFires.get(newId)
@@ -76,7 +87,7 @@ function startFire(source: alt.Player, maxFlames: number, maxRange: number, expl
         if (fire) {
             fire.start()
         }
-    }, createTimeout)
+    }, createTimeout * 1000)
 }
 
 function stopFires(onlyNearbyFires: boolean, position: alt.Vector3, distance: number = 35) {

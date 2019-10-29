@@ -1,7 +1,7 @@
 /// <reference path="./typings/altv-client.d.ts" />
 
 import alt from 'alt';
-import game, { playerAttachVirtualBound } from 'natives';
+import game from 'natives';
 
 import './FireScript'
 
@@ -10,9 +10,9 @@ alt.on('consoleCommand', (...args: string[]) => {
 
     switch (args[0]) {
         case 'startfire':
-            let createTimeout = 10000
+            let createTimeout = 10
             if (args.length >= 5) createTimeout = parseInt(args[4])
-            alt.emitServer('FireScript:Server:StartFireAtPlayer', parseInt(args[1]), parseInt(args[2]), getBoolean(args[3]), createTimeout)
+            alt.emitServer('FireScript:Server:StartFireAtPlayer', parseInt(args[1]), parseInt(args[2]), parseInt(args[3]), createTimeout)
             break
         case 'stopfire':
             alt.emitServer('FireScript:Server:StopFiresAtPlayer')
