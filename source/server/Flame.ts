@@ -2,15 +2,15 @@ import alt from 'alt';
 
 export default class Flame {
     constructor(
-        private readonly fireId: number,
+        private readonly fireId: string,
         private readonly position: alt.Vector3
     ) {
-        this.id = Flame.generateId()
+        this.Id = Flame.generateId()
         this.start()
     }
 
-    private readonly id: string
-
+    public readonly Id: string
+    
     private _active: boolean = false
     get Active(): boolean {
         return this._active
@@ -18,17 +18,17 @@ export default class Flame {
 
     public start() {
         this._active = true
-        alt.emitClient(null, 'FireScript:Client:StartLocalFlame', this.fireId, this.id, this.position)
+        alt.emitClient(null, 'FireScript:Client:StartLocalFlame', this.fireId, this.Id, this.position)
     }
 
     public remove() {
         //alt.log('flame remove')
-        alt.emitClient(null, 'FireScript:Client:RemoveLocalFlame', this.fireId, this.id, this.position)
         this._active = false
+        alt.emitClient(null, 'FireScript:Client:RemoveLocalFlame', this.fireId, this.Id, this.position)
     }
 
     public manage() {
-        alt.emitClient(null, 'FireScript:Client:ManageFlame', this.fireId, this.id, this.Active)
+        alt.emitClient(null, 'FireScript:Client:ManageFlame', this.fireId, this.Id, this.Active)
     }
 
     private static generateId() {

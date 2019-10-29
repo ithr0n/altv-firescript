@@ -5,18 +5,40 @@ export default class LocalFire {
     private scriptFireId: number | null = null
     private flamePtfx: number | null = null
 
-    public get FlameId() : number {
-        return this.id
+    public get FlameId(): string {
+        return this.flameId
     }
 
     constructor(
-        private readonly id: number,
+        private readonly fireId: string,
+        private readonly flameId: string,
         private readonly position: alt.Vector3
     ) {
         this.start()
     }
 
-    start() {
+    public start() {
+        let res: any
+
+        res = game.getGroundZFor3dCoord(this.position.x, this.position.y, this.position.z + 5, 0, false);
+        if (!res[0]) {
+            // no ground position found, happens probably when spawning fire inside of a building
+            return alt.emitServer('FireScript:Server:RemoveFlame', this.fireId, this.flameId)
+        }
+        this.position.z = res[1]
+
+        res = game.getSafeCoordForPed(this.position.x, this.position.y, this.position.z, false, new alt.Vector3(0, 0, 0), 16)
+        if (!res[0]) {
+            // no ground position found, happens probably when spawning fire inside of a building
+            return alt.emitServer('FireScript:Server:RemoveFlame', this.fireId, this.flameId)
+        }
+        this.position.x = res[1].x
+        this.position.y = res[1].y
+        this.position.z = res[1].z
+
+
+        // probably additional check: isPositionOccupied
+
         this.scriptFireId = game.startScriptFire(this.position.x, this.position.y, this.position.z, 25, false)
 
         requestNamedPtfxAssetPromise("scr_trevor3").then(() => {
@@ -27,25 +49,25 @@ export default class LocalFire {
         })
     }
 
-    remove() {
+    public remove() {
         //alt.log('local flame remove')
         if (this.scriptFireId != null) game.removeScriptFire(this.scriptFireId)
         //game.stopFireInRange(this.position.x, this.position.y, this.position.z, 20)
         if (this.flamePtfx != null) game.stopParticleFxLooped(this.flamePtfx, false)
     }
 
-    manage(isFlameActive: boolean) {
+    public manage(isFlameActive: boolean) {
         if (this.flamePtfx != null && game.doesParticleFxLoopedExist(this.flamePtfx)) {
             const numberInRange = game.getNumberOfFiresInRange(this.position.x, this.position.y, this.position.z, 2)
             if (numberInRange < 1) {
                 //alt.log('local flame manage->remove 1')
                 //this.remove()
-                alt.emitServer('FireScript:Server:RemoveFlame', this.id)
+                alt.emitServer('FireScript:Server:RemoveFlame', this.fireId, this.flameId)
             }
         } else if (this.flamePtfx != null && isFlameActive) {
             //alt.log('local flame manage->remove 2')
             //this.remove()
-            alt.emitServer('FireScript:Server:RemoveFlame', this.id)
+            alt.emitServer('FireScript:Server:RemoveFlame', this.fireId, this.flameId)
         }
     }
 }

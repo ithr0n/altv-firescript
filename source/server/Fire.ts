@@ -3,7 +3,7 @@ import Flame from './Flame';
 
 export default class Fire {
     constructor(
-        public readonly Id: number,
+        public readonly Id: string,
         public readonly Position: alt.Vector3,
         private readonly maxFlames: number = 20,
         private readonly maxSpreadDistance: number = 15,
@@ -15,10 +15,15 @@ export default class Fire {
         return this._active
     }
 
-    private flames: Flame[] = []
+    private _initialized: boolean = false
+    get Initialized(): boolean {
+        return this._initialized
+    }
+
+    private flames: Map<string, Flame> = new Map<string, Flame>()
 
     public start() {
-        this._active = true
+        this._initialized = true
 
         alt.emitClient(null, 'FireScript:Client:StartLocalFire', this.Id, this.Position, this.maxSpreadDistance, this.explosion)
 
@@ -26,9 +31,12 @@ export default class Fire {
             //const direction = normalizeVector(new alt.Vector3(Math.random() - 0.5, Math.random() - 0.5, 0))
             const direction = new alt.Vector3(Math.random() - 0.5, Math.random() - 0.5, 0)
             const around = vecAdd(this.Position, vecMultiplyScalar(direction, this.maxSpreadDistance))
-            this.flames.push(new Flame(this.Id, around))
+            const newFlame = new Flame(this.Id, around)
+            this.flames.set(newFlame.Id, newFlame)
             //alt.log(`${around.x} ${around.y} ${around.z} `)
         }
+        
+        this._active = true
     }
 
     public remove() {
@@ -37,7 +45,7 @@ export default class Fire {
             //alt.log('fire remove->flame remove')
             flame.remove()
         })
-        this.flames = []
+        this.flames.clear()
         alt.emitClient(null, 'FireScript:Client:RemoveFire', this.Id)
         this._active = false
     }
@@ -47,14 +55,28 @@ export default class Fire {
             this.flames.forEach((flame) => {
                 flame.manage()
             })
-            this.flames.forEach((flame, index, array) => {
-                if (!flame.Active) {
-                    array.splice(index, 1)
+
+            this.flames.forEach((value, key, map) => {
+                if (!value.Active) {
+                    map.delete(key)
                 }
             })
-            if (this.flames.length < 8) {
+
+            alt.log(this.flames.size.toString())
+
+            if (this.flames.size < 8) {
+                alt.log('fire extinguished')
                 this.remove()
             }
+        }
+    }
+
+    public removeFlame(flameId: string) {
+        const flame = this.flames.get(flameId)
+
+        if (flame) {
+            flame.remove()
+            this.flames.delete(flameId)
         }
     }
 }

@@ -5,16 +5,16 @@ import LocalFlame from './LocalFlame'
 export default class LocalFire {
     private smokePtfx: number | null = null
     private interiorSmokePtfx: number | null = null
-    private flames: Map<number, LocalFlame> = new Map<number, LocalFlame>()
+    private flames: Map<string, LocalFlame> = new Map<string, LocalFlame>()
 
     constructor(
-        public readonly Id: number,
+        public readonly Id: string,
         public readonly Position: alt.Vector3,
         public readonly MaxSpreadDistance: number,
         public readonly StartWithExplosion: boolean
     ) { }
 
-    async start() {
+    public async start() {
         await requestNamedPtfxAssetPromise("scr_agencyheistb")
         game.useParticleFxAsset("scr_agencyheistb")
         this.smokePtfx = game.startParticleFxLoopedAtCoord("scr_env_agency3b_smoke", this.Position.x, this.Position.y, this.Position.z, 0, 0, 0, this.MaxSpreadDistance * 0.5, false, false, false, false)
@@ -35,17 +35,17 @@ export default class LocalFire {
         }
     }
 
-    remove() {
+    public remove() {
         //alt.log('local fire remove')
         if (this.smokePtfx != null) game.stopParticleFxLooped(this.smokePtfx, false)
         if (this.interiorSmokePtfx != null) game.stopParticleFxLooped(this.interiorSmokePtfx, false)
     }
 
-    addFlame(flame: LocalFlame) {
+    public addFlame(flame: LocalFlame) {
         this.flames.set(flame.FlameId, flame)
     }
 
-    removeFlame(flameId: number) {
+    public removeFlame(flameId: string) {
         const flame = this.flames.get(flameId)
         if (flame) {
             flame.remove()
@@ -53,7 +53,7 @@ export default class LocalFire {
         }
     }
 
-    manageFlame(flameId: number, isFlameActive: boolean) {
+    public manageFlame(flameId: string, isFlameActive: boolean) {
         const flame = this.flames.get(flameId)
         if (flame) {
             flame.manage(isFlameActive)

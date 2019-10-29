@@ -10,26 +10,25 @@ alt.on('consoleCommand', (...args: string[]) => {
 
     switch (args[0]) {
         case 'startfire':
-            //alt.emit('FireScript:Client:StartFireAtPlayer', alt.Player.local, parseInt(args[1]), parseInt(args[2]), getBoolean(args[3]))
-            alt.emitServer('FireScript:Server:StartFireAtPlayer', parseInt(args[1]), parseInt(args[2]), getBoolean(args[3]))
+            let createTimeout = 10000
+            if (args.length >= 5) createTimeout = parseInt(args[4])
+            alt.emitServer('FireScript:Server:StartFireAtPlayer', parseInt(args[1]), parseInt(args[2]), getBoolean(args[3]), createTimeout)
             break
         case 'stopfire':
-            //alt.emit('FireScript:Client:StopFiresAtPlayer')
             alt.emitServer('FireScript:Server:StopFiresAtPlayer')
             break
         case 'stopallfires':
-            //alt.emit('FireScript:Client:StopAllFires')
             alt.emitServer('FireScript:Server:StopAllFires')
             break
-        /*case 'startsmoke':
-            alt.emit('FireScript:Client:StartSmokeAtPlayer', alt.Player.local, parseInt(args[1]))
+        case 'startsmoke':
+            alt.emitServer('FireScript:Server:StartSmokeAtPlayer', parseInt(args[1]))
             break
         case 'stopsmoke':
-            alt.emit('FireScript:Client:StopSmokesAtPlayer', alt.Player.local)
+            alt.emitServer('FireScript:Server:StopSmokesAtPlayer')
             break
-        case 'stopallsmoke':
-            alt.emit('FireScript:Client:StopAllSmoke', alt.Player.local)
-            break*/
+        case 'stopallsmokes':
+            alt.emitServer('FireScript:Server:StopAllSmokes')
+            break
 
 
         case 'gps':
