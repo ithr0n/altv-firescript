@@ -62,7 +62,7 @@ export default class Fire {
                 }
             })
 
-            alt.log(this.flames.size.toString())
+            //alt.log(this.flames.size.toString())
 
             if (this.flames.size < 8) {
                 alt.log('fire extinguished')
