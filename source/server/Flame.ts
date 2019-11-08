@@ -1,41 +1,45 @@
-import alt from 'alt';
+import alt from 'alt'
 
 export default class Flame {
+    private _active: boolean = false
+    public get Active() {
+        return !this.Removed && this._active
+    }
+
+    private _removed: boolean = false
+    public get Removed() {
+        return this._removed
+    }
+
+    public get Id() {
+        return this.flameId
+    }
+
+    public set Position(pos: alt.Vector3) {
+        this.position = pos
+    }
+
     constructor(
         private readonly fireId: string,
-        private readonly position: alt.Vector3,
-        private readonly isGasFire: boolean
-    ) {
-        this.Id = Flame.generateId()
-        this.start()
-    }
+        private readonly flameId: string,
+        private position: alt.Vector3
+    ) { }
 
-    public readonly Id: string
-    
-    private _active: boolean = false
-    get Active(): boolean {
-        return this._active
-    }
-
-    public start() {
+    public start(isGasFire: boolean) {
+        if (this.Active) return
         this._active = true
-        alt.emitClient(null, 'FireScript:Client:StartLocalFlame', this.fireId, this.Id, this.position, this.isGasFire)
+        alt.emitClient(null, 'FireScript:Client:SpawnLocalFlame', this.fireId, this.Id, this.position, isGasFire)
     }
 
     public remove() {
-        //alt.log('flame remove')
         this._active = false
+        this._removed = true
         alt.emitClient(null, 'FireScript:Client:RemoveLocalFlame', this.fireId, this.Id, this.position)
+        //alt.log(`flame ${this.Id} of fire ${this.fireId} marked for remove`)
     }
 
     public manage() {
-        alt.emitClient(null, 'FireScript:Client:ManageFlame', this.fireId, this.Id, this.Active)
-    }
-
-    private static generateId() {
-        return '_' + Math.random().toString(36).substr(2, 9)
+        if (!this.Active) return
+        alt.emitClient(null, 'FireScript:Client:ManageFlame', this.fireId, this.Id)
     }
 }
-
-
-

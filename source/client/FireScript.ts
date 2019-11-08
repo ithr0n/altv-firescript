@@ -2,26 +2,44 @@ import alt from 'alt'
 import game from 'natives'
 import LocalFire from './LocalFire'
 import LocalFlame from './LocalFlame'
+import LocalHelper from './LocalHelper';
 
-const fires: Map<string, LocalFire> = new Map<string, LocalFire>()
-
-alt.onServer('FireScript:Client:StartLocalFire', (fireId: string, position: alt.Vector3, maxSpreadDistance: number, evolveType: number) => {
-    const fire = new LocalFire(fireId, position, maxSpreadDistance, evolveType)
-    fire.start()
-
-    fires.set(fireId, fire)
+alt.onServer('FireScript:Client:ShowHelp', () => {
+    alt.log('Usages: fire (subcommand) (options)')
+    alt.log('Examples:')
+    alt.log('  fire start (flames) (range) (flags) [(delay)]')
+    alt.log('  fire stop [all]')
+    alt.log('  fire smoke start')
+    alt.log('  fire smoke stop [all]')
 })
 
-alt.onServer('FireScript:Client:RemoveFire', (fireId: string) => {
-    const fire = fires.get(fireId)
+// fires
+const fires: Map<string, LocalFire> = new Map<string, LocalFire>()
 
+alt.onServer('FireScript:Client:InitializeFire', (fireId: string, position: alt.Vector3, maxSpreadDistance: number, evolveFlags: number, maxFlames: number) => {
+    const fire = new LocalFire(fireId, position, maxSpreadDistance, evolveFlags)
+    fires.set(fireId, fire)
+    fire.init(maxFlames)
+})
+
+alt.onServer('FireScript:Client:StartLocalFire', (fireId: string, position: alt.Vector3, maxSpreadDistance: number, evolveFlags: number) => {
+    let fire = fires.get(fireId)
+    if (!fire) {
+        // at this point only the creator of the fire has the object
+        fire = new LocalFire(fireId, position, maxSpreadDistance, evolveFlags)
+        fires.set(fireId, fire)
+    }
+    fire.start()
+})
+
+alt.onServer('FireScript:Client:RemoveLocalFire', (fireId: string) => {
+    const fire = fires.get(fireId)
     if (fire) {
         fire.remove()
     }
 })
 
-
-alt.onServer('FireScript:Client:StartLocalFlame', (fireId: string, flameId: string, position: alt.Vector3, isGasFire: boolean) => {
+alt.onServer('FireScript:Client:SpawnLocalFlame', (fireId: string, flameId: string, position: alt.Vector3, isGasFire: boolean) => {
     const fire = fires.get(fireId)
     if (fire) {
         fire.addFlame(new LocalFlame(fireId, flameId, position, isGasFire))
@@ -35,19 +53,19 @@ alt.onServer('FireScript:Client:RemoveLocalFlame', (fireId: string, flameId: str
     }
 })
 
-alt.onServer('FireScript:Client:ManageFlame', (fireId: string, flameId: string, isFlameActive: boolean) => {
+alt.onServer('FireScript:Client:ManageFlame', (fireId: string, flameId: string) => {
     const fire = fires.get(fireId)
     if (fire) {
-        fire.manageFlame(flameId, isFlameActive)
+        fire.manageFlame(flameId)
     }
 })
 
-
+// smokes
 const smokes: Map<string, number> = new Map<string, number>()
 
 alt.onServer('FireScript:Client:StartSmoke', (smokeId: string, position: alt.Vector3, scale: number) => {
     //alt.log('FireScript:Client:StartSmoke')
-    requestNamedPtfxAssetPromise("scr_agencyheistb").then(() => {
+    LocalHelper.requestNamedPtfxAssetPromise("scr_agencyheistb").then(() => {
         game.useParticleFxAsset("scr_agencyheistb")
         smokes.set(smokeId, game.startParticleFxLoopedAtCoord("scr_env_agency3b_smoke", position.x, position.y, position.z, 0, 0, 0, scale, false, false, false, false))
     })
@@ -63,27 +81,3 @@ alt.onServer('FireScript:Client:StopSmoke', async (smokeId: string) => {
         //alt.log('done')
     }
 })
-
-
-// helper
-function requestNamedPtfxAssetPromise(assetName: string) {
-    return new Promise((resolve, reject) => {
-        /*if (!game.doesAnimDictExist(assetName))
-            return resolve(false);*/
-
-        if (game.hasNamedPtfxAssetLoaded(assetName)) {
-            return resolve(true);
-        }
-
-        game.requestNamedPtfxAsset(assetName);
-
-        let inter = alt.setInterval(() => {
-            if (game.hasNamedPtfxAssetLoaded(assetName)) {
-                alt.clearInterval(inter);
-                alt.log('Asset loaded: ' + assetName);
-                return resolve(true);
-            }
-            //alt.log('Requesting asset: ' + assetName);
-        }, 10);
-    });
-}
