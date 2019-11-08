@@ -100,7 +100,7 @@ export default class Fire {
             this.flamesSpawned = true
         }
 
-        alt.log(`started fire id ${this.Id}, created by ${this.creator.charName}`)
+        alt.log(`started fire id ${this.Id}, created by ${this.creator.socialId}`)
     }
 
     public remove() {

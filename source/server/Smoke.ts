@@ -1,12 +1,12 @@
 import alt from 'alt'
-import Helper from '../Helper'
+import Helper from './Helper'
 
 export default class Smoke {
     constructor(
         public readonly Position: alt.Vector3,
         private readonly scale: number
     ) {
-        this.Id = sHelper.generateId()
+        this.Id = Helper.generateId()
         //alt.log(this.Id)
         this.start()
     }
