@@ -11,3 +11,6 @@ You can also use `tsc --watch` once to automatically compile scripts on changes 
 
 ## Warning
 With many players on your server this script will probably disconnect all players after some time. I believe that this belongs to altV network stuff and with the next release this could be fixed.
+
+## Credits
+Based on https://forum.fivem.net/t/release-fire-script-by-albo1125/275069
