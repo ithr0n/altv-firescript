@@ -8,3 +8,6 @@ The files loaded by the server will be generated in the folder "build":
 ## How to compile
 To compile your scripts into JavaScript you have to run the command `npm run build`.
 You can also use `tsc --watch` once to automatically compile scripts on changes (probably you have to use `npx tsc --watch`).
+
+## Warning
+With many players on your server this script will probably disconnect all players after some time. I believe that this belongs to altV network stuff and with the next release this could be fixed.
