@@ -1,3 +1,11 @@
+# Not stable - you should not use this resource
+Only use that as reference how to spawn particles and scriptFires.\
+If you want synced fire you should write a new system based on streamers.\
+Take any other streamer as reference, available at https://hub.altv.mp/
+\
+\
+.
+
 # altv-resource-typescript-template
 This resource is based on TypeScript and RollupJS and can be used to start with your own resource.
 Remember that you need to compile your TypeScript files before pushing them on the server.
