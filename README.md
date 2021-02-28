@@ -4,7 +4,7 @@ If you want synced fire you should write a new system based on streamers.\
 Take any other streamer as reference, available at https://hub.altv.mp/
 \
 \
-.
+Better look into this version, which is based on Entity Sync: https://github.com/ithr0n/altv-firefighters
 
 # altv-resource-typescript-template
 This resource is based on TypeScript and RollupJS and can be used to start with your own resource.
